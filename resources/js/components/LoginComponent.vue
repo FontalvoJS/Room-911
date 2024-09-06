@@ -8,7 +8,7 @@
                     You'r admin? Log in
                     <span
                         :class="{
-                            'text-unlocked': form.success,
+                            'text-unlocked shake-effect': form.success,
                             'text-dark': !form.success,
                         }"
                         style="float: right"
@@ -30,6 +30,7 @@
                             id="email"
                             v-model="form.email"
                             type="email"
+                            onchange="@validateEmail"
                             class="form-control"
                             required
                             autofocus
@@ -74,6 +75,7 @@
                             Verify
                         </button>
                     </div>
+
                 </form>
             </div>
         </div>
@@ -143,7 +145,9 @@ export default {
                     });
                     await new Promise((resolve) =>
                         setTimeout(() => {
-                            this.$router.push({ name: "dashboard" });
+                            const baseUrl =
+                                window.location.origin + "/room_911/public/";
+                            window.location.href = baseUrl + "dashboard";
                             resolve();
                         }, 1000)
                     );
@@ -195,5 +199,9 @@ export default {
 }
 .text-unlocked {
     color: #f5821f;
+}
+.shake-effect {
+}
+@keyframes shake {
 }
 </style>
