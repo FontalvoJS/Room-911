@@ -6,8 +6,18 @@
             <div class="card-header">
                 <h3 style="font-weight: bold">
                     You'r admin? Log in
-                    <span class="text-dark" style="float: right"
-                        ><i class="fas fa-lock"></i
+                    <span
+                        :class="{
+                            'text-unlocked': form.success,
+                            'text-dark': !form.success,
+                        }"
+                        style="float: right"
+                        ><i
+                            :class="{
+                                'fas fa-unlock': form.success,
+                                'fas fa-lock': !form.success,
+                            }"
+                        ></i
                     ></span>
                 </h3>
             </div>
@@ -24,9 +34,14 @@
                             required
                             autofocus
                         />
-                        <span v-if="errors.email" class="text-danger">{{
-                            errors.email
-                        }}</span>
+                        <div v-if="errors.email" class="text-danger">
+                            <span
+                                v-for="(error, index) in errors.email"
+                                :key="index"
+                            >
+                                {{ error }}</span
+                            >
+                        </div>
                     </div>
 
                     <div class="form-group mb-3">
@@ -40,9 +55,14 @@
                             class="form-control"
                             required
                         />
-                        <span v-if="errors.password" class="text-danger">{{
-                            errors.password
-                        }}</span>
+                        <div v-if="errors.email" class="text-danger">
+                            <span
+                                v-for="(error, index) in errors.email"
+                                :key="index"
+                            >
+                                {{ error }}</span
+                            >
+                        </div>
                     </div>
 
                     <div class="form-group text-center">
@@ -71,6 +91,7 @@ export default {
             form: {
                 email: "",
                 password: "",
+                success: false,
             },
             errors: {},
         };
@@ -83,12 +104,6 @@ export default {
             if (!isValid) {
                 toast.error("Please enter a valid email address", {
                     timeout: 3000,
-                    onClose: () => {
-                        this.form.email = "";
-                    },
-                    onClick: () => {
-                        this.form.email = "";
-                    },
                     position: "top-center",
                 });
             }
@@ -99,12 +114,6 @@ export default {
             if (password.length < 8) {
                 toast.error("Password must be at least 8 characters", {
                     timeout: 3000,
-                    onClose: () => {
-                        this.form.password = "";
-                    },
-                    onClick: () => {
-                        this.form.password = "";
-                    },
                     position: "top-center",
                 });
                 return false;
@@ -126,12 +135,23 @@ export default {
             try {
                 // Make a request to the login endpoint
                 const response = await axios_instance.post("/login", this.form);
-                console.log("respuesta", response);
+                if (response.status === 204) {
+                    this.form.success = true;
+                    toast.success("You'll be redirected", {
+                        timeout: 3000,
+                        position: "top-center",
+                    });
+                    await new Promise((resolve) =>
+                        setTimeout(() => {
+                            this.$router.push({ name: "dashboard" });
+                            resolve();
+                        }, 1000)
+                    );
+                }
             } catch (error) {
                 // Handle validation errors from the backend
                 if (error.response && error.response.data.errors) {
                     this.errors = error.response.data.errors;
-                    console.log(error.response.data.errors);
                 }
             }
         },
@@ -172,5 +192,8 @@ export default {
 
 .form-check-input {
     margin-right: 0.5rem;
+}
+.text-unlocked {
+    color: #f5821f;
 }
 </style>

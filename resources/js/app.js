@@ -8,6 +8,7 @@
 import { createApp } from "vue";
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css"; // Importar los estilos de Toastification
+import { createRouter, createWebHistory } from "vue-router";
 
 /**
  * Next, we will create a fresh Vue application instance. You may then begin
@@ -17,9 +18,7 @@ import "vue-toastification/dist/index.css"; // Importar los estilos de Toastific
 
 const app = createApp({});
 
-import ExampleComponent from "./components/ExampleComponent.vue";
 import LoginComponent from "./components/LoginComponent.vue";
-app.component("example-component", ExampleComponent);
 app.component("login-component", LoginComponent);
 /**
  * The following block of code may be used to automatically register your
@@ -52,6 +51,32 @@ const options = {
     hideProgressBar: false,
     icon: true,
 };
+
+const routes = [
+    {
+        path: "/room_911/public/",
+        name: "home",
+    },
+    {
+        path: "/room_911/public/login",
+        name: "login",
+        component: LoginComponent,
+    },
+    {
+        path: "/room_911/public/dashboard",
+        name: "dashboard",
+        component: () => import("./components/DashboardComponent.vue"),
+    },
+];
+
+// Crear el router
+const router = createRouter({
+    history: createWebHistory(),
+    routes,
+});
+
+// Agregar el router a la aplicación
+app.use(router);
 
 app.use(Toast, options);
 
