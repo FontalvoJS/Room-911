@@ -4,8 +4,10 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-import './bootstrap';
-import { createApp } from 'vue';
+// import "./bootstrap";
+import { createApp } from "vue";
+import Toast from "vue-toastification";
+import "vue-toastification/dist/index.css"; // Importar los estilos de Toastification
 
 /**
  * Next, we will create a fresh Vue application instance. You may then begin
@@ -15,9 +17,10 @@ import { createApp } from 'vue';
 
 const app = createApp({});
 
-import ExampleComponent from './components/ExampleComponent.vue';
-app.component('example-component', ExampleComponent);
-
+import ExampleComponent from "./components/ExampleComponent.vue";
+import LoginComponent from "./components/LoginComponent.vue";
+app.component("example-component", ExampleComponent);
+app.component("login-component", LoginComponent);
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -35,5 +38,21 @@ app.component('example-component', ExampleComponent);
  * an "id" attribute of "app". This element is included with the "auth"
  * scaffolding. Otherwise, you will need to add an element yourself.
  */
+// Configurar la biblioteca de Toast
+const options = {
+    // Opciones de configuración
+    position: "top-right",
+    timeout: 5000,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    draggablePercent: 0.6,
+    showCloseButtonOnHover: false,
+    closeButton: "button",
+    hideProgressBar: false,
+    icon: true,
+};
 
-app.mount('#app');
+app.use(Toast, options);
+
+app.mount("#app");
