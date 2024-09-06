@@ -30,7 +30,6 @@
                             id="email"
                             v-model="form.email"
                             type="email"
-                            onchange="@validateEmail"
                             class="form-control"
                             required
                             autofocus
@@ -75,7 +74,6 @@
                             Verify
                         </button>
                     </div>
-
                 </form>
             </div>
         </div>
@@ -146,8 +144,8 @@ export default {
                     await new Promise((resolve) =>
                         setTimeout(() => {
                             const baseUrl =
-                                window.location.origin + "/room_911/public/";
-                            window.location.href = baseUrl + "dashboard";
+                                window.location.origin + "/dashboard";
+                            window.location.href = baseUrl;
                             resolve();
                         }, 1000)
                     );
@@ -199,9 +197,5 @@ export default {
 }
 .text-unlocked {
     color: #f5821f;
-}
-.shake-effect {
-}
-@keyframes shake {
 }
 </style>

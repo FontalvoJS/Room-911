@@ -56,16 +56,16 @@ const options = {
 
 const routes = [
     {
-        path: "/room_911/public/",
+        path: "/",
         name: "home",
     },
     {
-        path: "/room_911/public/login",
+        path: "/login",
         name: "login",
         component: LoginComponent,
     },
     {
-        path: "/room_911/public/dashboard",
+        path: "/dashboard",
         name: "dashboard",
         component: DashboardComponent,
     },
