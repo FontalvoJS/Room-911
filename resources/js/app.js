@@ -19,7 +19,9 @@ import { createRouter, createWebHistory } from "vue-router";
 const app = createApp({});
 
 import LoginComponent from "./components/LoginComponent.vue";
+import DashboardComponent from "./components/DashboardComponent.vue";
 app.component("login-component", LoginComponent);
+app.component("dashboard-component", DashboardComponent);
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -65,7 +67,7 @@ const routes = [
     {
         path: "/room_911/public/dashboard",
         name: "dashboard",
-        component: () => import("./components/DashboardComponent.vue"),
+        component: DashboardComponent,
     },
 ];
 
