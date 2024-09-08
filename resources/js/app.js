@@ -8,7 +8,6 @@
 import { createApp } from "vue";
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css"; // Importar los estilos de Toastification
-import { createRouter, createWebHistory } from "vue-router";
 
 /**
  * Next, we will create a fresh Vue application instance. You may then begin
@@ -54,31 +53,6 @@ const options = {
     icon: true,
 };
 
-const routes = [
-    {
-        path: "/",
-        name: "home",
-    },
-    {
-        path: "/login",
-        name: "login",
-        component: LoginComponent,
-    },
-    {
-        path: "/dashboard",
-        name: "dashboard",
-        component: DashboardComponent,
-    },
-];
-
-// Crear el router
-const router = createRouter({
-    history: createWebHistory(),
-    routes,
-});
-
-// Agregar el router a la aplicación
-app.use(router);
 
 app.use(Toast, options);
 

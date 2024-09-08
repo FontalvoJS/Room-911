@@ -25,14 +25,14 @@
             <div class="card-body">
                 <form @submit.prevent="submitForm">
                     <div class="form-group mb-3">
-                        <label for="email" class="form-label">Username</label>
+                        <label for="email" class="form-label">Username or email</label>
                         <input
                             id="email"
                             v-model="form.email"
-                            type="email"
+                            type="text"
                             class="form-control"
-                            required
                             autofocus
+                            required
                         />
                         <div v-if="errors.email" class="text-danger">
                             <span
@@ -55,9 +55,9 @@
                             class="form-control"
                             required
                         />
-                        <div v-if="errors.email" class="text-danger">
+                        <div v-if="errors.password" class="text-danger">
                             <span
-                                v-for="(error, index) in errors.email"
+                                v-for="(error, index) in errors.password"
                                 :key="index"
                             >
                                 {{ error }}</span
@@ -97,19 +97,19 @@ export default {
         };
     },
     methods: {
-        validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            const isValid = re.test(email);
+        // validateEmail(email) {
+        //     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        //     const isValid = re.test(email);
 
-            if (!isValid) {
-                toast.error("Please enter a valid email address", {
-                    timeout: 3000,
-                    position: "top-center",
-                });
-            }
+        //     if (!isValid) {
+        //         toast.error("Please enter a valid email address", {
+        //             timeout: 3000,
+        //             position: "top-center",
+        //         });
+        //     }
 
-            return isValid;
-        },
+        //     return isValid;
+        // },
         validatePass(password) {
             if (password.length < 8) {
                 toast.error("Password must be at least 8 characters", {
@@ -123,10 +123,10 @@ export default {
         async submitForm() {
             this.errors = {}; // Reset errors
 
-            if (!this.validateEmail(this.form.email)) {
-                this.errors.email = "Please enter a valid email address";
-                return;
-            }
+            // if (!this.validateEmail(this.form.email)) {
+            //     this.errors.email = "Please enter a valid email address";
+            //     return;
+            // }
             if (!this.validatePass(this.form.password)) {
                 this.errors.password = "Password must be at least 8 characters";
                 return;
