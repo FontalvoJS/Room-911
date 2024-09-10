@@ -1,1 +1,119 @@
+body {
+    font-family: "Roboto", sans-serif !important;
+    background-color: whitesmoke;
+}
+.form-label {
+    font-weight: 500;
+    font-size: 14px;
+    color: #696969;
+}
+.table th,
+.table td {
+    vertical-align: middle;
+    text-align: center;
+}
+.btn-custom {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 0.2rem;
+}
+.btn-history {
+    background-color: #ffc107;
+    color: white;
+}
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+}
+.input-group-text {
+    font-weight: 500;
+}
+.action-buttons {
+    display: flex;
+    justify-content: space-around;
+}
+.btn.btn-primary {
+    border-color: #ff6723;
+    background-color: #ff6723;
+    color: white;
+}
 
+.pagination-section {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+.modal-content {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.22);
+    background-color: #fff;
+}
+
+.modal-header {
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.modal-title {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-control {
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.btn-dark {
+    background-color: #333;
+    border-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+}
+.container {
+    padding: 0;
+}
+
+/* Center the card in the viewport */
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.22);
+    background-color: #fff;
+}
+
+.card-header {
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.card-header h2 {
+    margin: 0;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-check-input {
+    margin-right: 0.5rem;
+}
+.text-unlocked {
+    color: #f5821f;
+}

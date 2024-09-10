@@ -2,20 +2,13 @@ import axios_instance from "./axios.js";
 import { useToast } from "vue-toastification";
 import "vue-toastification/dist/index.css"; // Importar los estilos de Toastification
 const toast = useToast();
-import "../../css/dashboard.css";
-
+import { Departments } from "./departaments_json.js";
 export const setDataUpdate = function (employee) {
-    const departments = {
-        Research: 1,
-        Production: 2,
-        Security: 3,
-        Laboratory: 4,
-    };
     this.updateEmployeeForm.id = employee.id;
     this.updateEmployeeForm.has_access = employee.has_access ? true : false;
     this.updateEmployeeForm.name = employee.name;
     this.updateEmployeeForm.last_name = employee.last_name;
-    this.updateEmployeeForm.department = departments[employee.department];
+    this.updateEmployeeForm.department = Departments[employee.department];
 };
 export const validateFormAdmin = function () {
     this.formAdmin.errors = {};
@@ -55,7 +48,7 @@ export const submitFormToAddAdmin = async function () {
         if (response.status === 201) {
             toast.success(response.data.message, {
                 timeout: 3000,
-                position: "top-center",
+                position: "top-right",
             });
             this.resetForm(true);
         }
@@ -65,7 +58,7 @@ export const submitFormToAddAdmin = async function () {
         } else {
             toast.error("Ocurrió un error al registrar el administrador.", {
                 timeout: 3000,
-                position: "top-center",
+                position: "top-right",
             });
         }
     } finally {
@@ -86,7 +79,7 @@ export const submitFormToAddEmployee = async function () {
         if (response.status === 201) {
             toast.success(response.data.message, {
                 timeout: 3000,
-                position: "top-center",
+                position: "top-right",
             });
             await this.getEmployees();
             this.resetForm(false);
@@ -131,53 +124,100 @@ export const resetForm = function (isAdmin) {
         this.formEmployee.errors = {};
     }
 };
-export const resetFormUpdate = function () {
-    this.updateEmployeeForm.id = "";
-    this.updateEmployeeForm.name = "";
-    this.updateEmployeeForm.last_name = "";
-    this.updateEmployeeForm.department = "";
-    this.updateEmployeeForm.errors = {};
-};
 export const applyFilters = function () {
-    // Implementa la lógica para aplicar los filtros
-};
-export const clearFilters = function () {
-    this.filters.employeeId = "";
-    this.filters.department = "";
-    this.filters.initialAccessDate = "2016-05-12";
-    this.filters.finalAccessDate = "2016-05-12";
-    // Implementa la lógica para limpiar los filtros aquí
-};
-export const toggleEnable = function (employee) {
-    // Implementa la lógica para habilitar/deshabilitar un empleado
-    // Por ejemplo, hacer una solicitud al backend para actualizar el estado
-    employee.has_access = !employee.has_access;
-};
-export const copyToClipboard = function (text, hasAccess) {
-    if (hasAccess) {
-        navigator.clipboard.writeText(text);
-        toast.info("Copied to clipboard: " + text, {
-            timeout: 3000,
-            position: "top-center",
-        });
-    } else {
-        navigator.clipboard.writeText(text);
-        toast.info(
-            "Copy to clipboard but this employee is not allowed to access the room.",
+    const searchObject = {
+        employee_id: this.filters.employee_id,
+        name: this.filters.name,
+        last_name: this.filters.last_name,
+        department: this.filters.department,
+    };
+
+    const filters = [
+        (employees, searchObject) => {
+            if (searchObject.employee_id !== "") {
+                return employees.filter((employee) =>
+                    employee.employee_id.includes(searchObject.employee_id)
+                );
+            }
+            return employees;
+        },
+        (employees, searchObject) => {
+            if (searchObject.name !== "") {
+                return employees.filter((employee) =>
+                    employee.name.includes(searchObject.name.trim())
+                );
+            }
+            return employees;
+        },
+        (employees, searchObject) => {
+            if (searchObject.last_name !== "") {
+                return employees.filter((employee) =>
+                    employee.last_name
+                        .toLowerCase()
+                        .includes(searchObject.last_name.toLowerCase())
+                );
+            }
+            return employees;
+        },
+        (employees, searchObject) => {
+            if (searchObject.department && searchObject.department > 0) {
+                const departamentosToArray = Object.entries(this.departments);
+                const departamentoEncontrado = departamentosToArray.find(
+                    ([key, value]) => value.id === searchObject.department
+                );
+
+                if (departamentoEncontrado) {
+                    const nameDep = departamentoEncontrado[1].name;
+                    return employees.filter((employee) =>
+                        employee.department.includes(nameDep)
+                    );
+                }
+            }
+            return employees;
+        },
+    ];
+
+    let filteredEmployees = this.employees;
+
+    filters.forEach((filter) => {
+        filteredEmployees = filter(filteredEmployees, searchObject);
+    });
+
+    if (filteredEmployees.length > 0) {
+        this.filteredEmployees = filteredEmployees;
+        toast.success(
+            `Se encontraron ${filteredEmployees.length} resultados para los filtros aplicados.`,
             {
                 timeout: 3000,
-                position: "top-center",
+                position: "top-right",
             }
         );
+    } else {
+        toast.info("No se encontraron resultados para los filtros aplicados.", {
+            timeout: 3000,
+            position: "top-right",
+        });
     }
 };
+export const clearFilters = function () {
+    this.filters.employee_id = "";
+    this.filters.name = "";
+    this.filters.last_name = "";
+    this.filters.department = "";
+    // this.filters.initialAccessDate = "";
+    // this.filters.finalAccessDate = "";
+    // this.filters.has_access = "";
+
+    this.filteredEmployees = [];
+};
+
 export const deleteEmployee = async function (id) {
     try {
         const response = await axios_instance.post(`/delete-employee/${id}`);
         if (response.status === 200) {
             toast.success(response.data.message, {
                 timeout: 3000,
-                position: "top-center",
+                position: "top-right",
             });
             this.getEmployees();
         }
@@ -201,11 +241,31 @@ export const updateEmployee = async function () {
         if (response.status === 200) {
             toast.success(response.data.message, {
                 timeout: 3000,
-                position: "top-center",
+                position: "top-right",
             });
             await this.getEmployees();
-            this.resetFormUpdate();
         }
+    } catch (error) {
+        console.error(error);
+    }
+};
+export const uploadFile = async function (file) {
+    try {
+        const formData = new FormData();
+        formData.append("file", file);
+        const response = await axios_instance.post("/upload-file", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+                Accept: "application/json",
+            },
+        });
+        if (response.status === 200) {
+            toast.success(response.data.message, {
+                timeout: 3000,
+                position: "top-right",
+            });
+        }
+        await this.getEmployees();
     } catch (error) {
         console.error(error);
     }
@@ -246,4 +306,54 @@ export const showTime = function () {
 
     const currentTime = hours + ":" + minutes + ":" + seconds + " " + ampm;
     this.currentTime = currentTime;
+};
+export const handleFile = async function (event) {
+    const file = event.target.files[0];
+    if (file) {
+        await this.uploadFile(file);
+        event.target.value = "";
+    }
+};
+export const simulateId = function (id) {
+    if (id && id.length > 15) {
+        window.open(`/simulate-room/${id}`, "_blank");
+    }
+};
+
+export const exportHistory = async function (id) {
+    try {
+        const response = await axios_instance.post(
+            "/export-data",
+            { employee_id: id },
+            {
+                responseType: "blob", // Asegúrate de que la respuesta sea de tipo blob
+            }
+        );
+
+        if (response.status === 200) {
+            // Crear un enlace temporal para forzar la descarga
+            const url = window.URL.createObjectURL(
+                new Blob([response.data], { type: "application/pdf" })
+            );
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", `access_history_${id}.pdf`); // Nombre del archivo
+            document.body.appendChild(link);
+            link.click();
+
+            // Remover el enlace temporal del DOM
+            document.body.removeChild(link);
+
+            toast.success("Archivo descargado exitosamente", {
+                timeout: 3000,
+                position: "top-right",
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        toast.error("Error al descargar el archivo", {
+            timeout: 3000,
+            position: "top-right",
+        });
+    }
 };

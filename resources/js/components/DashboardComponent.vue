@@ -9,87 +9,31 @@
             :submitFormToAddAdmin="submitFormToAddAdmin"
             :submitFormToAddEmployee="submitFormToAddEmployee"
             :updateEmployee="updateEmployee"
+            :handleFile="handleFile"
         />
         <!-- Main Container -->
         <div class="container py-5 mt-4 custom_shadow">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="h3">Administrative Menu</h1>
-                <div>
+                <div class="oclock">
                     <span>
-                        <strong><i class="fa fa-clock"></i></strong>
+                        <strong
+                            ><i class="fa fa-clock" style="color: #555555c9"></i
+                        ></strong>
                         <small id="currentTime">{{
                             currentTime || "Initializing time"
                         }}</small>
                     </span>
                 </div>
             </div>
-
-            <!-- Filter Section -->
-            <div class="filter-section">
-                <div class="input-group mb-3">
-                    <input
-                        type="text"
-                        class="form-control"
-                        placeholder="Search by employee ID"
-                        aria-label="Search by employee ID"
-                        v-model="filters.employeeId"
-                    />
-                    <select class="form-select" v-model="filters.department">
-                        <option value="" selected>Select a department</option>
-                        <option
-                            v-for="department in departments"
-                            :key="department.id"
-                            :value="department.id"
-                        >
-                            {{ department.name }}
-                        </option>
-                    </select>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-4">
-                        <label for="initial-access-date" class="form-label"
-                            >Initial access date:</label
-                        >
-                        <input
-                            type="date"
-                            class="form-control"
-                            id="initial-access-date"
-                            v-model="filters.initialAccessDate"
-                        />
-                    </div>
-                    <div class="col-md-4">
-                        <label for="final-access-date" class="form-label"
-                            >Final access date:</label
-                        >
-                        <input
-                            type="date"
-                            class="form-control"
-                            id="final-access-date"
-                            v-model="filters.finalAccessDate"
-                        />
-                    </div>
-                </div>
-                <div class="row">
-                    <div
-                        class="col-md-4 d-flex align-items-end filter-btns mt-2"
-                    >
-                        <button
-                            class="btn btn-secondary"
-                            @click.prevent="clearFilters"
-                        >
-                            Clear filter
-                        </button>
-                        <button
-                            class="btn btn-dark"
-                            @click.prevent="applyFilters"
-                        >
-                            Filter
-                        </button>
-                    </div>
-                </div>
-            </div>
-
+            <FilterComponent
+                v-if="pageLoaded"
+                :departments="departments"
+                :filters="filters"
+                :applyFilters="applyFilters"
+                :clearFilters="clearFilters"
+                :employees="employees"
+            />
             <!-- Action Buttons -->
             <div class="d-flex justify-content-end mb-3">
                 <button
@@ -109,6 +53,15 @@
                 >
                     Add admin
                 </button>
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    style="margin-left: 5px"
+                    title="Refresh table"
+                    @click="getEmployees"
+                >
+                    <i class="fas fa-sync" ></i>
+                </button>
             </div>
 
             <!-- Employees Table -->
@@ -118,49 +71,133 @@
             >
                 <thead class="table-dark">
                     <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Key</th>
+                        <th scope="col"><i class="fa fa-key"></i></th>
                         <th scope="col"></th>
                         <th scope="col">Firstname</th>
                         <th scope="col">Lastname</th>
                         <th scope="col">Department</th>
-                        <th scope="col">Total access</th>
+                        <th scope="col">Allowed</th>
+                        <th scope="col">Denied</th>
                         <th scope="col">Active</th>
                         <th scope="col">Update</th>
                         <th scope="col">Export</th>
                         <th scope="col">Remove</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody
+                    v-if="!filteredEmployees || filteredEmployees.length === 0"
+                >
                     <tr v-for="employee in employees" :key="employee.id">
-                        <td>{{ employee.id }}</td>
-                        <td>
+                        <td
+                            style="
+                                color: gray;
+                                font-size: 14px;
+                                font-family: 'Nunito';
+                            "
+                        >
                             {{ employee.employee_id }}
                         </td>
-                        <td>
+                        <td @click="simulateId(employee.employee_id)">
                             <i
-                                class="fa fa-copy"
-                                title="Copy ID"
+                                class="fa fa-eye"
+                                title="Simulate ID"
                                 :style="{
                                     cursor: 'pointer',
                                     color: employee.has_access
                                         ? '#ff6723'
                                         : 'initial',
                                 }"
-                                @click="
-                                    copyToClipboard(
-                                        employee.employee_id,
-                                        employee.has_access
-                                    )
-                                "
                             ></i>
                         </td>
                         <td>{{ employee.name }}</td>
                         <td>{{ employee.last_name }}</td>
                         <td>
-                            <span class="departments">{{
-                                employee.department
-                            }}</span>
+                            <div class="departments">
+                                {{ employee.department }}
+                            </div>
+                        </td>
+                        <td>
+                            <small style="text-align: left !important">{{
+                                employee.totalAccess || 0
+                            }}</small>
+                        </td>
+                        <td>
+                            <small style="text-align: left !important">
+                                {{ employee.totalDenied || 0 }}</small
+                            >
+                        </td>
+                        <td>
+                            <span
+                                class="btn btn-light"
+                                title="Black color it means inactive"
+                            >
+                                {{ employee.has_access ? "🟠" : "⚫" }}
+                            </span>
+                        </td>
+                        <td>
+                            <button
+                                data-bs-toggle="modal"
+                                data-bs-target="#employeeEdit"
+                                title="Edit employee"
+                                @click="setDataUpdate(employee)"
+                                class="btn btn-sm btn-custom"
+                            >
+                                <i class="fa fa-edit"></i>
+                            </button>
+                        </td>
+                        <td class="action-buttons">
+                            <button
+                                title="Export history access to PDF"
+                                class="btn btn-sm btn-custom"
+                                @click="this.exportHistory(employee.employee_id)"
+                            >
+                                <i class="fa fa-download"></i>
+                            </button>
+                        </td>
+                        <td>
+                            <button
+                                class="btn btn-sm btn-dar"
+                                title="Delete employee"
+                                @click="this.deleteEmployee(employee.employee_id)"
+                            >
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody v-else>
+                    <tr
+                        v-for="employee in filteredEmployees"
+                        :key="employee.id"
+                    >
+                        <td
+                            @click="simulateId(employee.employee_id)"
+                            style="
+                                color: gray;
+                                font-size: 14px;
+                                font-family: 'Nunito';
+                            "
+                        >
+                            {{ employee.employee_id }}
+                        </td>
+                        <td>
+                            <i
+                                class="fa fa-eye"
+                                title="Simulate ID"
+                                :style="{
+                                    cursor: 'pointer',
+                                    color: employee.has_access
+                                        ? '#ff6723'
+                                        : 'initial',
+                                }"
+                            ></i>
+                        </td>
+                        <td>{{ employee.name }}</td>
+                        <td>{{ employee.last_name }}</td>
+                        <td>
+                            <div class="departments">
+                                {{ employee.department }}
+                            </div>
                         </td>
                         <td>
                             <strong>{{ employee.totalAccess || 0 }}</strong>
@@ -188,8 +225,9 @@
                             <button
                                 title="Export history access to PDF"
                                 class="btn btn-sm btn-custom"
+                                @click="this.exportHistory(employee.id)"
                             >
-                                <i class="fa fa-file-pdf"></i>
+                                <i class="fa fa-download"></i>
                             </button>
                         </td>
                         <td>
@@ -215,6 +253,7 @@
 </template>
 
 <script>
+import "../../css/dashboard.css";
 import DashboardModals from "../modals/DashboardModals.vue";
 import {
     showTime,
@@ -227,10 +266,15 @@ import {
     deleteEmployee,
     updateEmployee,
     validateFormEmployee,
-    copyToClipboard,
-    setDataUpdate, 
-    resetFormUpdate
-} from "../utils/methods"; // Asegúrate de que las rutas de importación sean correctas
+    setDataUpdate,
+    simulateId,
+    handleFile,
+    uploadFile,
+    applyFilters,
+    clearFilters,
+    exportHistory
+} from "../utils/dashboard_methods.js"; // Asegúrate de que las rutas de importación sean correctas
+import FilterComponent from "../filter/FilterComponent.vue";
 
 export default {
     data() {
@@ -256,6 +300,7 @@ export default {
                 department: "",
                 isLoading: false,
                 errors: {},
+                file: null,
             },
             updateEmployeeForm: {
                 id: "",
@@ -268,11 +313,15 @@ export default {
             },
             // Filters
             filters: {
-                employeeId: "",
+                id: "",
+                employee_id: "",
                 department: "",
-                initialAccessDate: "2016-05-12",
-                finalAccessDate: "2016-05-12",
+                initialAccessDate: "",
+                finalAccessDate: "",
+                name: "",
+                last_name: "",
             },
+            filteredEmployees: [],
             pageLoaded: false,
         };
     },
@@ -285,11 +334,16 @@ export default {
             await this.getDepartments();
             await this.getEmployees();
             this.pageLoaded = true;
+            new DataTable("#employeesTable", {
+                responsive: true,
+                searching: false,
+            });
         };
         load();
     },
     components: {
         DashboardModals,
+        FilterComponent,
     },
     methods: {
         showTime,
@@ -302,9 +356,13 @@ export default {
         deleteEmployee,
         updateEmployee,
         validateFormEmployee,
-        copyToClipboard,
         setDataUpdate,
-        resetFormUpdate
+        uploadFile,
+        applyFilters,
+        clearFilters,
+        handleFile,
+        simulateId,
+        exportHistory
     },
 };
 </script>
