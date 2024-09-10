@@ -158,7 +158,7 @@
                             <button
                                 class="btn btn-sm btn-dar"
                                 title="Delete employee"
-                                @click="this.deleteEmployee(employee.employee_id)"
+                                @click="this.deleteEmployee(employee.id)"
                             >
                                 <i class="fa fa-trash"></i>
                             </button>
