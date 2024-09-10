@@ -5,7 +5,7 @@
         <div class="login-card">
             <div class="card-header">
                 <h3 style="font-weight: bold">
-                    You'r admin? Log in
+                    Log in to Room 911
                     <span
                         :class="{
                             'text-unlocked shake-effect': form.success,
@@ -25,39 +25,20 @@
             <div class="card-body">
                 <form @submit.prevent="submitForm">
                     <div class="form-group mb-3">
-                        <label for="email" class="form-label">Username or email</label>
+                        <label for="employee_id" class="form-label"
+                            >Your ID access</label
+                        >
                         <input
-                            id="email"
-                            v-model="form.email"
-                            type="text"
+                            id="employee_id"
+                            v-model="form.employee_id"
+                            type="password"
                             class="form-control"
                             autofocus
                             required
                         />
-                        <div v-if="errors.email" class="text-danger">
+                        <div v-if="errors.employee_id" class="text-danger">
                             <span
-                                v-for="(error, index) in errors.email"
-                                :key="index"
-                            >
-                                {{ error }}</span
-                            >
-                        </div>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label for="password" class="form-label"
-                            >Password</label
-                        >
-                        <input
-                            id="password"
-                            v-model="form.password"
-                            type="password"
-                            class="form-control"
-                            required
-                        />
-                        <div v-if="errors.password" class="text-danger">
-                            <span
-                                v-for="(error, index) in errors.password"
+                                v-for="(error, index) in errors.employee_id"
                                 :key="index"
                             >
                                 {{ error }}</span
@@ -79,47 +60,42 @@
         </div>
     </div>
 </template>
-
 <script>
+import "../../css/app.css";
 import { useToast } from "vue-toastification";
-import "vue-toastification/dist/index.css"; // Importar los estilos de Toastification
+import "vue-toastification/dist/index.css";
 const toast = useToast();
 import axios_instance from "../utils/axios";
 export default {
+    name: "RoomComponent",
     data() {
         return {
             form: {
-                email: "",
-                password: "",
+                employee_id: this.id,
                 success: false,
             },
             errors: {},
         };
     },
+    props: {
+        id: String,
+    },
     methods: {
-        validatePass(password) {
-            if (password.length < 8) {
-                toast.error("Password must be at least 8 characters", {
-                    timeout: 3000,
-                    position: "top-right",                });
-                return false;
-            }
-            return true;
-        },
         async submitForm() {
             this.errors = {}; // Reset errors
-
-            if (!this.validatePass(this.form.password)) {
-                this.errors.password = "Password must be at least 8 characters";
+            if (!this.form.employee_id) {
+                this.errors.employee_id = ["This field is required"];
                 return;
             }
 
             try {
-                // Make a request to the login endpoint
-                const response = await axios_instance.post("/login", this.form);
-                if (response.status === 204) {
+                const response = await axios_instance.post(
+                    "/login-room",
+                    this.form
+                );
+                if (response.status === 200) {
                     this.form.success = true;
-                    toast.success("You'll be redirected", {
+                    toast.success("You'll be redirected to Room 911", {
                         timeout: 3000,
                         position: "top-right",                    });
                     await new Promise((resolve) =>
@@ -132,12 +108,17 @@ export default {
                     );
                 }
             } catch (error) {
-                // Handle validation errors from the backend
                 if (error.response && error.response.data.errors) {
                     this.errors = error.response.data.errors;
+                }
+                if(error.response.status === 403){
+                    toast.error(error.response.data.message, {
+                        timeout: 3000,
+                        position: "top-right",                    })
                 }
             }
         },
     },
 };
 </script>
+<style scoped src="/resources/css/app.css"></style>

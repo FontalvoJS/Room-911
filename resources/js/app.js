@@ -19,8 +19,10 @@ const app = createApp({});
 
 import LoginComponent from "./components/LoginComponent.vue";
 import DashboardComponent from "./components/DashboardComponent.vue";
+import RoomComponent from "./components/RoomComponent.vue";
 app.component("login-component", LoginComponent);
 app.component("dashboard-component", DashboardComponent);
+app.component("room-component", RoomComponent);
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
