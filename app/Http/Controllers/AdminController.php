@@ -138,6 +138,9 @@ class AdminController extends Controller
     {
         try {
             $employee = Employees::find($id);
+            if (!$employee) {
+                return response()->json(['error' => 'Employee not found'], Response::HTTP_NOT_FOUND);
+            }
             $employee->delete();
             return response()->json(['message' => 'Employee deleted successfully'], Response::HTTP_OK);
         } catch (\Exception $e) {
