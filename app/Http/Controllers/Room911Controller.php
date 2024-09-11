@@ -41,10 +41,10 @@ class Room911Controller extends Controller
                         'was_successful' => 0,
                         'attempted_at' => now(),
                     ]);
-                    return response()->json(['message' => 'Access denied'], Response::HTTP_FORBIDDEN);
+                    return response()->json(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
                 }
             } else {
-                return response()->json(['message' => 'Employee not found'], Response::HTTP_NOT_FOUND);
+                return response()->json(['error' => 'Employee not found'], Response::HTTP_NOT_FOUND);
             }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
