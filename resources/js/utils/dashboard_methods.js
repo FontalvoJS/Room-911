@@ -199,16 +199,18 @@ export const applyFilters = function () {
         });
     }
 };
-export const clearFilters = function () {
+export const clearFilters = async function () {
     this.filters.employee_id = "";
     this.filters.name = "";
     this.filters.last_name = "";
     this.filters.department = "";
-    // this.filters.initialAccessDate = "";
-    // this.filters.finalAccessDate = "";
-    // this.filters.has_access = "";
-
+    if (this.filters.initialAccessDate || this.filters.finalAccessDate) {
+        this.getEmployees();
+    }
+    this.filters.initialAccessDate = "";
+    this.filters.finalAccessDate = "";
     this.filteredEmployees = [];
+
 };
 
 export const deleteEmployee = async function (id) {
@@ -239,7 +241,7 @@ export const updateEmployee = async function () {
             data
         );
         if (response.status === 200) {
-            toast.success(response.data.message, {
+            toast.success("Updated successfully", {
                 timeout: 3000,
                 position: "top-right",
             });
@@ -270,11 +272,22 @@ export const uploadFile = async function (file) {
         console.error(error);
     }
 };
-export const getEmployees = async function () {
+export const getEmployees = async function (isUpdate = false) {
     try {
+        if (isUpdate) {
+            toast.info("Wait a moment...", {
+                timeout: 3000,
+            });
+        }
         const response = await axios_instance.get("/get-employees");
         if (response.status === 200) {
             this.employees = response.data.employees;
+        }
+        if (isUpdate) {
+            toast.success("Updated successfully", {
+                timeout: 3000,
+                position: "top-right",
+            });
         }
     } catch (error) {
         console.error(error);

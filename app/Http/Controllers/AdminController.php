@@ -116,6 +116,7 @@ class AdminController extends Controller
                 DB::raw('(SELECT COUNT(*) FROM access_attempts WHERE access_attempts.employee_id = employees.employee_id AND access_attempts.was_successful = 0) as totalDenied')
             )
                 ->join('departments', 'employees.department', '=', 'departments.id')
+                ->orderBy('employees.id', 'desc')
                 ->get();
 
             return response()->json(['employees' => $employees], Response::HTTP_OK);
@@ -123,6 +124,56 @@ class AdminController extends Controller
             return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+    public function getEmployeesByDate(Request $request)
+    {
+        try {
+            // Obtener los parámetros de fecha del request
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+
+            // Construcción de la consulta base
+            $employees = Employees::select(
+                'employees.id',
+                'employees.employee_id',
+                'employees.name',
+                'employees.last_name',
+                'departments.name as department',
+                'employees.has_access',
+                // Cálculo de totalAccess con filtro de fecha si está disponible
+                DB::raw('(SELECT COUNT(*) 
+                      FROM access_attempts 
+                      WHERE access_attempts.employee_id = employees.employee_id 
+                      AND access_attempts.was_successful = 1' .
+                    ($startDate ? ' AND access_attempts.attempted_at >= "' . $startDate . '"' : '') .
+                    ($endDate ? ' AND access_attempts.attempted_at <= "' . $endDate . '"' : '') .
+                    ') as totalAccess'),
+                // Cálculo de totalDenied con filtro de fecha si está disponible
+                DB::raw('(SELECT COUNT(*) 
+                      FROM access_attempts 
+                      WHERE access_attempts.employee_id = employees.employee_id 
+                      AND access_attempts.was_successful = 0' .
+                    ($startDate ? ' AND access_attempts.attempted_at >= "' . $startDate . '"' : '') .
+                    ($endDate ? ' AND access_attempts.attempted_at <= "' . $endDate . '"' : '') .
+                    ') as totalDenied')
+            )
+                ->join('departments', 'employees.department', '=', 'departments.id')
+                ->having('totalAccess', '>', 0)
+                ->orHaving('totalDenied', '>', 0)
+                ->get();
+
+            // Verificar si se encontraron empleados
+            if ($employees->isEmpty()) {
+                return response()->json(['error' => 'No employees found'], Response::HTTP_NOT_FOUND);
+            }
+
+            return response()->json(['employees' => $employees], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+
     public function getDepartments()
     {
         try {
