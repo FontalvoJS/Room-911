@@ -8,7 +8,7 @@
                 placeholder="Search by employee ID"
                 aria-label="Search by employee ID"
                 v-model="filters.employee_id"
-                @change="applyFilters"
+                @input="applyFilters"
             />
             <input
                 type="text"
@@ -16,7 +16,7 @@
                 placeholder="Search by firstname"
                 aria-label="Search by firstname"
                 v-model="filters.name"
-                @change="applyFilters"
+                @input="applyFilters"
             />
             <input
                 type="text"
@@ -24,12 +24,12 @@
                 placeholder="Search by lastname"
                 aria-label="Search by lastname"
                 v-model="filters.last_name"
-                @change="applyFilters"
+                @input="applyFilters"
             />
             <select
                 class="form-select"
                 v-model="filters.department"
-                @change="applyFilters"
+                @input="applyFilters"
             >
                 <option value="" selected>Select a department</option>
                 <option
@@ -70,9 +70,6 @@
         </div>
         <div class="row">
             <div class="col-md-3">
-                <button class="btn btn-dark mt-2" @click="applyFilters">
-                    Filter
-                </button>
                 <button
                     class="btn btn-dark mt-2"
                     style="margin-left: 5px"
