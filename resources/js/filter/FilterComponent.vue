@@ -48,7 +48,7 @@
                     Initial access date:
                 </label>
                 <input
-                    @change="applyFilters"
+                    @change="searchByDate"
                     type="date"
                     class="form-control"
                     id="initial-access-date"
@@ -60,7 +60,7 @@
                     Final access date:
                 </label>
                 <input
-                    @change="applyFilters"
+                    @change="searchByDate"
                     type="date"
                     class="form-control"
                     id="final-access-date"
@@ -70,12 +70,18 @@
         </div>
         <div class="row">
             <div class="col-md-1">
-                <button class="btn btn-dark mt-2" @click="clearFilters">Clear</button>
+                <button class="btn btn-dark mt-2" @click="clearFilters">
+                    Clear
+                </button>
             </div>
         </div>
     </div>
 </template>
 <script>
+import { useToast } from "vue-toastification";
+import axios_instance from "../utils/axios";
+import "vue-toastification/dist/index.css";
+const toast = useToast();
 export default {
     name: "FilterComponent",
     props: {
@@ -98,6 +104,37 @@ export default {
         clearFilters: {
             type: Function,
             required: true,
+        },
+    },
+    methods: {
+        async searchByDate() {
+            try {
+                toast.info("Wait a moment...");
+                const data = {
+                    start_date: this.filters.initialAccessDate,
+                    end_date: this.filters.finalAccessDate,
+                };
+
+                const response = await axios_instance.post(
+                    "/get-employees-by-date",
+                    data
+                );
+                if (response.status === 200) {
+                    if (Array.isArray(response.data.employees)) {
+                        toast.success("Employees found successfully");
+                        this.$emit("update:employees", response.data.employees);
+                    } else {
+                        toast.info("No employees found");
+                    }
+                }
+            } catch (error) {
+                if (error.response && error.response.status === 404) {
+                    toast.error(error.response.data.error, {
+                        timeout: 3000,
+                        position: "top-right",
+                    });
+                }
+            }
         },
     },
 };

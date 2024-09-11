@@ -17,4 +17,8 @@ class Employees extends Model
         'has_access',
         'employee_id',
     ];
+    public function accessAttempts()
+    {
+        return $this->hasMany(AccessAttempts::class, 'employee_id', 'employee_id');
+    }
 }

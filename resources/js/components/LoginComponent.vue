@@ -89,8 +89,8 @@ export default {
     data() {
         return {
             form: {
-                email: "",
-                password: "",
+                email: "admin@pharmacy.com",
+                password: "12345678",
                 success: false,
             },
             errors: {},
@@ -101,7 +101,8 @@ export default {
             if (password.length < 8) {
                 toast.error("Password must be at least 8 characters", {
                     timeout: 3000,
-                    position: "top-right",                });
+                    position: "top-right",
+                });
                 return false;
             }
             return true;
@@ -115,13 +116,18 @@ export default {
             }
 
             try {
+                toast.info("Logging in...", {
+                    timeout: 3000,
+                    position: "top-right",
+                });
                 // Make a request to the login endpoint
                 const response = await axios_instance.post("/login", this.form);
                 if (response.status === 204) {
                     this.form.success = true;
                     toast.success("You'll be redirected", {
                         timeout: 3000,
-                        position: "top-right",                    });
+                        position: "top-right",
+                    });
                     await new Promise((resolve) =>
                         setTimeout(() => {
                             const baseUrl =
@@ -136,6 +142,7 @@ export default {
                 if (error.response && error.response.data.errors) {
                     this.errors = error.response.data.errors;
                 }
+
             }
         },
     },

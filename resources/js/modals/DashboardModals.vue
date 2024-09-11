@@ -146,7 +146,7 @@
                                 aria-controls="massive"
                                 aria-selected="false"
                             >
-                                Massive Upload CSV | XLSX
+                                Massive Upload CSV 
                             </button>
                         </li>
                     </ul>
@@ -254,9 +254,38 @@
                         >
                             <form @submit.prevent="submitFileUpload">
                                 <div class="form-group mt-3">
-                                    <label for="massive_upload" class="mb-3 mt-2 p-3 text-justify"
-                                        >Employees will be imported immediately, please select the CSV or XLSX.</label
+                                    <small style="color:gray">Available departments: Research, Security, Production and Laboratory</small>
+
+                                    <label
+                                        for="massive_upload"
+                                        class="mb-3 mt-2 p-3 text-justify"
+                                        >Employees will be imported immediately,
+                                        please select the CSV with this format, we will create a unique access code automatically</label
                                     >
+                                    <table class="table table-bordered">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th scope="col">firstname</th>
+                                                <th scope="col">lastname</th>
+                                                <th scope="col">department</th>
+                                                <th scope="col">has_access</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>John</td>
+                                                <td>Due</td>
+                                                <td>security</td>
+                                                <td>true</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Jack</td>
+                                                <td>Sparrow</td>
+                                                <td>research</td>
+                                                <td>false</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                     <input
                                         type="file"
                                         name="massive_upload"
@@ -420,7 +449,10 @@
     </div>
 </template>
 <script>
-import { handleFile, submitFormToAddAdmin } from "../utils/dashboard_methods.js";
+import {
+    handleFile,
+    submitFormToAddAdmin,
+} from "../utils/dashboard_methods.js";
 
 export default {
     name: "DashboardModals",

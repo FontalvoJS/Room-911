@@ -50,6 +50,9 @@ td {
     font-weight: 500;
     font-family: "Roboto", sans-serif;
 }
+tr:hover {
+ background: rgb(238, 238, 238);
+}
 .departments {
     background: #ff6723;
     padding: 4px;
@@ -63,3 +66,41 @@ td {
 div.dt-container.dt-empty-footer tbody > tr:last-child > * {
     border-bottom: none;
 }
+.pagination-section {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  .pagination-container {
+    display: inline-block;
+    background-color: #f7f7f7;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .pagination-button {
+    background-color: #fff;
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .pagination-button:hover {
+    background-color: #f2f2f2;
+  }
+  
+  .pagination-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .pagination-text {
+    font-size: 16px;
+    margin: 0 10px;
+  }
+  
+  .fa-lg {
+    font-size: 24px;
+  }

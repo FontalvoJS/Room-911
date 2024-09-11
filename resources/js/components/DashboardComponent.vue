@@ -33,8 +33,12 @@
                 :applyFilters="applyFilters"
                 :clearFilters="clearFilters"
                 :employees="employees"
+                @update:employees="updateObject"
             />
             <!-- Action Buttons -->
+            <small style="float: left; color: gray"
+                >Use <i class="fa fa-eye"></i> to simulate ID
+            </small>
             <div class="d-flex justify-content-end mb-3">
                 <button
                     type="button"
@@ -58,9 +62,9 @@
                     class="btn btn-primary"
                     style="margin-left: 5px"
                     title="Refresh table"
-                    @click="getEmployees"
+                    @click="getEmployees(true)"
                 >
-                    <i class="fas fa-sync" ></i>
+                    <i class="fas fa-sync"></i>
                 </button>
             </div>
 
@@ -87,7 +91,10 @@
                 <tbody
                     v-if="!filteredEmployees || filteredEmployees.length === 0"
                 >
-                    <tr v-for="employee in employees" :key="employee.id">
+                    <tr
+                        v-for="employee in paginatedEmployees"
+                        :key="employee.id"
+                    >
                         <td
                             style="
                                 color: gray;
@@ -149,7 +156,9 @@
                             <button
                                 title="Export history access to PDF"
                                 class="btn btn-sm btn-custom"
-                                @click="this.exportHistory(employee.employee_id)"
+                                @click="
+                                    this.exportHistory(employee.employee_id)
+                                "
                             >
                                 <i class="fa fa-download"></i>
                             </button>
@@ -203,6 +212,11 @@
                             <strong>{{ employee.totalAccess || 0 }}</strong>
                         </td>
                         <td>
+                            <small style="text-align: left !important">
+                                {{ employee.totalDenied || 0 }}</small
+                            >
+                        </td>
+                        <td>
                             <span
                                 class="btn btn-light"
                                 title="Black color it means inactive"
@@ -241,12 +255,37 @@
                         </td>
                     </tr>
                 </tbody>
-            </table>
 
+            </table>
+            <div v-if="!pageLoaded" class="mt-4">
+                <!-- Spinner -->
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
             <!-- Pagination Section -->
             <div class="pagination-section">
-                <span>Page {{ currentPage }} of {{ totalPages }}</span>
-                <!-- Add pagination controls as needed -->
+                <div class="pagination-container">
+                    <button
+                        @click="previousPage"
+                        :disabled="currentPage === 1"
+                        class="pagination-button"
+                    >
+                        <i class="fa fa-angle-left fa-lg"></i>
+                    </button>
+                    <span class="pagination-text"
+                        >Página {{ currentPage }} de {{ totalPages }}</span
+                    >
+                    <button
+                        @click="nextPage"
+                        :disabled="currentPage === totalPages"
+                        class="pagination-button"
+                    >
+                        <i class="fa fa-angle-right fa-lg"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -272,7 +311,7 @@ import {
     uploadFile,
     applyFilters,
     clearFilters,
-    exportHistory
+    exportHistory,
 } from "../utils/dashboard_methods.js"; // Asegúrate de que las rutas de importación sean correctas
 import FilterComponent from "../filter/FilterComponent.vue";
 
@@ -283,8 +322,8 @@ export default {
             currentTime: "",
             departments: [],
             employees: [],
-            currentPage: 1,
-            totalPages: 1,
+            currentPage: 1, // página actual
+            elementsPerPage: 10, // elementos por página
             // Forms
             formAdmin: {
                 name: "",
@@ -334,13 +373,18 @@ export default {
             await this.getDepartments();
             await this.getEmployees();
             this.pageLoaded = true;
-            new DataTable("#employeesTable", {
-                responsive: true,
-                searching: false,
-                ordering:false
-            });
         };
         load();
+    },
+    computed: {
+        paginatedEmployees() {
+            const start = (this.currentPage - 1) * this.elementsPerPage;
+            const end = start + this.elementsPerPage;
+            return this.employees.slice(start, end);
+        },
+        totalPages() {
+            return Math.ceil(this.employees.length / this.elementsPerPage);
+        },
     },
     components: {
         DashboardModals,
@@ -363,7 +407,16 @@ export default {
         clearFilters,
         handleFile,
         simulateId,
-        exportHistory
+        exportHistory,
+        previousPage() {
+            this.currentPage--;
+        },
+        nextPage() {
+            this.currentPage++;
+        },
+        updateObject(employees) {
+            this.employees = employees;
+        },
     },
 };
 </script>
