@@ -360,10 +360,14 @@ export const handleFile = async function (event) {
     }
 };
 export const previousPage = async function () {
-    this.currentPage--;
+    if (this.currentPage > 1) {
+        this.currentPage--;
+    }
 };
 export const nextPage = async function () {
-    this.currentPage++;
+    if (this.currentPage < this.totalPages && this.totalPages > 1) {
+        this.currentPage++;
+    }
 };
 export const updateObject = async function (employees) {
     this.employees = employees;
