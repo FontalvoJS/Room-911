@@ -245,7 +245,7 @@ export const deleteEmployee = async function (id) {
                 timeout: 3000,
                 position: "top-right",
             });
-            this.getEmployees();
+            this.getEmployees(true);
         }
     } catch (error) {
         console.error(error);
@@ -316,6 +316,7 @@ export const getEmployees = async function (isUpdate = false) {
             this.employees = response.data.employees;
         }
         if (isUpdate) {
+            this.clearFilters();
             toast.success("Updated successfully", {
                 timeout: 3000,
                 position: "top-right",
