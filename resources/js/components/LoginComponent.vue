@@ -25,7 +25,7 @@
             <div class="card-body">
                 <form @submit.prevent="submitForm">
                     <div class="form-group mb-3">
-                        <label for="email" class="form-label">Username or email</label>
+                        <label for="email" class="form-label">Email</label>
                         <input
                             id="email"
                             v-model="form.email"

@@ -14,9 +14,7 @@ use App\Services\FileProcessorService;
 use Barryvdh\DomPDF\Facade\Pdf;
 // use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
-use Dompdf\Dompdf;
-use Dompdf\Options;
-use Illuminate\Support\Facades\View;
+
 
 class AdminController extends Controller
 {
