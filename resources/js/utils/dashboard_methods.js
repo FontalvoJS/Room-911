@@ -126,83 +126,73 @@ export const resetForm = function (isAdmin) {
 };
 export const applyFilters = function () {
     const searchObject = {
-        employee_id: this.filters.employee_id.toLowerCase().trim(), // Convertir a minúsculas
-        name: this.filters.name.toLowerCase().trim(), // Convertir a minúsculas y eliminar espacios
-        last_name: this.filters.last_name.toLowerCase().trim(), // Convertir a minúsculas y eliminar espacios
+        employee_id: this.filters.employee_id.toLowerCase().trim(),
+        name: this.filters.name.toLowerCase().trim(),
+        last_name: this.filters.last_name.toLowerCase().trim(),
         department: this.filters.department,
     };
 
-    if (
+    // Verifica si hay algún filtro aplicado
+    const isFiltering =
         this.filters.employee_id ||
         this.filters.name ||
         this.filters.last_name ||
-        this.filters.department
-    ) {
-        const filters = [
-            (employees, searchObject) => {
-                if (searchObject.employee_id !== "") {
-                    return employees.filter((employee) =>
-                        employee.employee_id
-                            .toLowerCase()
-                            .includes(searchObject.employee_id)
-                    );
-                }
-                return employees;
-            },
-            (employees, searchObject) => {
-                if (searchObject.name !== "") {
-                    return employees.filter((employee) =>
-                        employee.name.toLowerCase().includes(searchObject.name)
-                    );
-                }
-                return employees;
-            },
-            (employees, searchObject) => {
-                if (searchObject.last_name !== "") {
-                    return employees.filter((employee) =>
-                        employee.last_name
-                            .toLowerCase()
-                            .includes(searchObject.last_name)
-                    );
-                }
-                return employees;
-            },
-            (employees, searchObject) => {
-                if (searchObject.department && searchObject.department > 0) {
-                    const departamentosToArray = Object.entries(
-                        this.departments
-                    );
-                    const departamentoEncontrado = departamentosToArray.find(
-                        ([key, value]) => value.id === searchObject.department
-                    );
+        this.filters.department;
 
-                    if (departamentoEncontrado) {
-                        const nameDep =
-                            departamentoEncontrado[1].name.toLowerCase(); // Convertir a minúsculas
-                        return employees.filter((employee) =>
-                            employee.department.toLowerCase().includes(nameDep)
-                        );
-                    }
+    if (isFiltering) {
+        // Aplica todos los filtros sobre `employees`
+        let filteredEmployees = this.employees.filter((employee) => {
+            // Filtro por ID de empleado (si está presente)
+            if (searchObject.employee_id) {
+                if (
+                    !employee.employee_id
+                        .toLowerCase()
+                        .includes(searchObject.employee_id)
+                ) {
+                    return false;
                 }
-                return employees;
-            },
-        ];
+            }
 
-        let filteredEmployees = this.employees;
+            // Filtro por nombre (si está presente)
+            if (searchObject.name) {
+                if (!employee.name.toLowerCase().includes(searchObject.name)) {
+                    return false;
+                }
+            }
 
-        filters.forEach((filter) => {
-            filteredEmployees = filter(filteredEmployees, searchObject);
+            // Filtro por apellido (si está presente)
+            if (searchObject.last_name) {
+                if (
+                    !employee.last_name
+                        .toLowerCase()
+                        .includes(searchObject.last_name)
+                ) {
+                    return false;
+                }
+            }
+
+            // Filtro por departamento (si está presente)
+            if (searchObject.department) {
+                const department = this.departments.find(
+                    (dep) => dep.id === searchObject.department
+                );
+                if (
+                    department &&
+                    !employee.department
+                        .toLowerCase()
+                        .includes(department.name.toLowerCase())
+                ) {
+                    return false;
+                }
+            }
+
+            // Si pasa todos los filtros, se incluye el empleado
+            return true;
         });
 
+        // Verifica si se encontraron empleados filtrados
         if (filteredEmployees.length > 0) {
-            this.filteredEmployees = filteredEmployees;
-            toast.success(
-                `Se encontraron ${filteredEmployees.length} resultados para los filtros aplicados.`,
-                {
-                    timeout: 3000,
-                    position: "top-right",
-                }
-            );
+            this.employees = filteredEmployees;
         } else {
             toast.info(
                 "No se encontraron resultados para los filtros aplicados.",
@@ -212,25 +202,22 @@ export const applyFilters = function () {
                 }
             );
         }
-    } else {
-        toast.info("Nothing to filter", {
-            timeout: 3000,
-            position: "top-right",
-        });
     }
 };
 
 export const clearFilters = async function () {
+    toast.info("Clearing filters", {
+        timeout: 3000,
+        position: "top-right",
+    });
     this.filters.employee_id = "";
     this.filters.name = "";
     this.filters.last_name = "";
     this.filters.department = "";
-    if (this.filters.initialAccessDate || this.filters.finalAccessDate) {
-        this.getEmployees();
-    }
     this.filters.initialAccessDate = "";
     this.filters.finalAccessDate = "";
     this.filteredEmployees = [];
+    this.getEmployees();
 };
 
 export const deleteEmployee = async function (id) {
@@ -245,12 +232,13 @@ export const deleteEmployee = async function (id) {
                 timeout: 3000,
                 position: "top-right",
             });
-            this.getEmployees(true);
+            await this.getEmployees(true); // Mantener filtros aplicados
         }
     } catch (error) {
         console.error(error);
     }
 };
+
 export const updateEmployee = async function () {
     try {
         toast.info("Wait a moment, It may take a few seconds", {
@@ -273,12 +261,13 @@ export const updateEmployee = async function () {
                 timeout: 3000,
                 position: "top-right",
             });
-            await this.getEmployees();
+            await this.getEmployees(true); // Mantener filtros aplicados
         }
     } catch (error) {
         console.error(error);
     }
 };
+
 export const uploadFile = async function (file) {
     try {
         toast.info("Wait a moment, It may take a few seconds", {
@@ -304,7 +293,10 @@ export const uploadFile = async function (file) {
         console.error(error);
     }
 };
-export const getEmployees = async function (isUpdate = false) {
+export const getEmployees = async function (
+    applyFilters = true,
+    isUpdate = false
+) {
     try {
         if (isUpdate) {
             toast.info("Wait a moment...", {
@@ -314,6 +306,11 @@ export const getEmployees = async function (isUpdate = false) {
         const response = await axios_instance.get("/get-employees");
         if (response.status === 200) {
             this.employees = response.data.employees;
+
+            // Aplicar filtros si es necesario
+            if (applyFilters) {
+                this.applyFilters();
+            }
         }
         if (isUpdate) {
             this.clearFilters();
@@ -326,6 +323,7 @@ export const getEmployees = async function (isUpdate = false) {
         console.error(error);
     }
 };
+
 export const getDepartments = async function () {
     try {
         const response = await axios_instance.get("/get-departments");
