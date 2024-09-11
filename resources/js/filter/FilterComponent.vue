@@ -69,8 +69,15 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-1">
-                <button class="btn btn-dark mt-2" @click="clearFilters">
+            <div class="col-md-3">
+                <button class="btn btn-dark mt-2" @click="applyFilters">
+                    Filter
+                </button>
+                <button
+                    class="btn btn-dark mt-2"
+                    style="margin-left: 5px"
+                    @click="clearFilters"
+                >
                     Clear
                 </button>
             </div>

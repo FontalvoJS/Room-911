@@ -37,7 +37,15 @@
             />
             <!-- Action Buttons -->
             <small style="float: left; color: gray"
-                >Use <i class="fa fa-eye"></i> to simulate ID
+                >Use
+                <i class="fa fa-eye" style="color: black !important"></i> to
+                simulate ID &nbsp;|&nbsp;<i
+                    style="color: black !important"
+                    class="fa fa-code"
+                ></i>
+                <span style="font-weight: 500; color: #ff6723">
+                    Andrés Fontalvo</span
+                >
             </small>
             <div class="d-flex justify-content-end mb-3">
                 <button
@@ -180,7 +188,6 @@
                         :key="employee.id"
                     >
                         <td
-                            @click="simulateId(employee.employee_id)"
                             style="
                                 color: gray;
                                 font-size: 14px;
@@ -189,7 +196,7 @@
                         >
                             {{ employee.employee_id }}
                         </td>
-                        <td>
+                        <td @click="simulateId(employee.employee_id)">
                             <i
                                 class="fa fa-eye"
                                 title="Simulate ID"
@@ -239,7 +246,9 @@
                             <button
                                 title="Export history access to PDF"
                                 class="btn btn-sm btn-custom"
-                                @click="this.exportHistory(employee.id)"
+                                @click="
+                                    this.exportHistory(employee.employee_id)
+                                "
                             >
                                 <i class="fa fa-download"></i>
                             </button>
@@ -255,7 +264,6 @@
                         </td>
                     </tr>
                 </tbody>
-
             </table>
             <div v-if="!pageLoaded" class="mt-4">
                 <!-- Spinner -->
@@ -293,6 +301,7 @@
 
 <script>
 import "../../css/dashboard.css";
+import { useThrottle } from "../utils/useThrottle.js";
 import DashboardModals from "../modals/DashboardModals.vue";
 import {
     showTime,
@@ -312,6 +321,9 @@ import {
     applyFilters,
     clearFilters,
     exportHistory,
+    previousPage,
+    nextPage,
+    updateObject,
 } from "../utils/dashboard_methods.js"; // Asegúrate de que las rutas de importación sean correctas
 import FilterComponent from "../filter/FilterComponent.vue";
 
@@ -394,29 +406,24 @@ export default {
         showTime,
         validateFormAdmin,
         validateEmail,
-        submitFormToAddAdmin,
-        submitFormToAddEmployee,
+        submitFormToAddAdmin: useThrottle(submitFormToAddAdmin, 2000),
+        submitFormToAddEmployee: useThrottle(submitFormToAddEmployee, 2000),
         getDepartments,
-        getEmployees,
-        deleteEmployee,
-        updateEmployee,
+        // Aplica throttling a las funciones que dependen de clicks rápidos
+        getEmployees: useThrottle(getEmployees, 2000), // 2 segundos de delay entre ejecuciones
+        deleteEmployee: useThrottle(deleteEmployee, 2000),
+        updateEmployee: useThrottle(updateEmployee, 2000),
         validateFormEmployee,
         setDataUpdate,
-        uploadFile,
-        applyFilters,
-        clearFilters,
+        uploadFile: useThrottle(uploadFile, 2000),
+        applyFilters: useThrottle(applyFilters, 2000),
+        clearFilters: useThrottle(clearFilters, 2000),
         handleFile,
         simulateId,
-        exportHistory,
-        previousPage() {
-            this.currentPage--;
-        },
-        nextPage() {
-            this.currentPage++;
-        },
-        updateObject(employees) {
-            this.employees = employees;
-        },
+        exportHistory: useThrottle(exportHistory, 2000), // También aquí
+        updateObject,
+        previousPage,
+        nextPage,
     },
 };
 </script>

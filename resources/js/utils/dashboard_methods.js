@@ -56,7 +56,7 @@ export const submitFormToAddAdmin = async function () {
         if (error.response && error.response.data.errors) {
             this.formAdmin.errors = error.response.data.errors;
         } else {
-            toast.error("Ocurrió un error al registrar el administrador.", {
+            toast.error("The admin already exists", {
                 timeout: 3000,
                 position: "top-right",
             });
@@ -126,79 +126,100 @@ export const resetForm = function (isAdmin) {
 };
 export const applyFilters = function () {
     const searchObject = {
-        employee_id: this.filters.employee_id,
-        name: this.filters.name,
-        last_name: this.filters.last_name,
+        employee_id: this.filters.employee_id.toLowerCase().trim(), // Convertir a minúsculas
+        name: this.filters.name.toLowerCase().trim(), // Convertir a minúsculas y eliminar espacios
+        last_name: this.filters.last_name.toLowerCase().trim(), // Convertir a minúsculas y eliminar espacios
         department: this.filters.department,
     };
 
-    const filters = [
-        (employees, searchObject) => {
-            if (searchObject.employee_id !== "") {
-                return employees.filter((employee) =>
-                    employee.employee_id.includes(searchObject.employee_id)
-                );
-            }
-            return employees;
-        },
-        (employees, searchObject) => {
-            if (searchObject.name !== "") {
-                return employees.filter((employee) =>
-                    employee.name.includes(searchObject.name.trim())
-                );
-            }
-            return employees;
-        },
-        (employees, searchObject) => {
-            if (searchObject.last_name !== "") {
-                return employees.filter((employee) =>
-                    employee.last_name
-                        .toLowerCase()
-                        .includes(searchObject.last_name.toLowerCase())
-                );
-            }
-            return employees;
-        },
-        (employees, searchObject) => {
-            if (searchObject.department && searchObject.department > 0) {
-                const departamentosToArray = Object.entries(this.departments);
-                const departamentoEncontrado = departamentosToArray.find(
-                    ([key, value]) => value.id === searchObject.department
-                );
-
-                if (departamentoEncontrado) {
-                    const nameDep = departamentoEncontrado[1].name;
+    if (
+        this.filters.employee_id ||
+        this.filters.name ||
+        this.filters.last_name ||
+        this.filters.department
+    ) {
+        const filters = [
+            (employees, searchObject) => {
+                if (searchObject.employee_id !== "") {
                     return employees.filter((employee) =>
-                        employee.department.includes(nameDep)
+                        employee.employee_id
+                            .toLowerCase()
+                            .includes(searchObject.employee_id)
                     );
                 }
-            }
-            return employees;
-        },
-    ];
+                return employees;
+            },
+            (employees, searchObject) => {
+                if (searchObject.name !== "") {
+                    return employees.filter((employee) =>
+                        employee.name.toLowerCase().includes(searchObject.name)
+                    );
+                }
+                return employees;
+            },
+            (employees, searchObject) => {
+                if (searchObject.last_name !== "") {
+                    return employees.filter((employee) =>
+                        employee.last_name
+                            .toLowerCase()
+                            .includes(searchObject.last_name)
+                    );
+                }
+                return employees;
+            },
+            (employees, searchObject) => {
+                if (searchObject.department && searchObject.department > 0) {
+                    const departamentosToArray = Object.entries(
+                        this.departments
+                    );
+                    const departamentoEncontrado = departamentosToArray.find(
+                        ([key, value]) => value.id === searchObject.department
+                    );
 
-    let filteredEmployees = this.employees;
+                    if (departamentoEncontrado) {
+                        const nameDep =
+                            departamentoEncontrado[1].name.toLowerCase(); // Convertir a minúsculas
+                        return employees.filter((employee) =>
+                            employee.department.toLowerCase().includes(nameDep)
+                        );
+                    }
+                }
+                return employees;
+            },
+        ];
 
-    filters.forEach((filter) => {
-        filteredEmployees = filter(filteredEmployees, searchObject);
-    });
+        let filteredEmployees = this.employees;
 
-    if (filteredEmployees.length > 0) {
-        this.filteredEmployees = filteredEmployees;
-        toast.success(
-            `Se encontraron ${filteredEmployees.length} resultados para los filtros aplicados.`,
-            {
-                timeout: 3000,
-                position: "top-right",
-            }
-        );
+        filters.forEach((filter) => {
+            filteredEmployees = filter(filteredEmployees, searchObject);
+        });
+
+        if (filteredEmployees.length > 0) {
+            this.filteredEmployees = filteredEmployees;
+            toast.success(
+                `Se encontraron ${filteredEmployees.length} resultados para los filtros aplicados.`,
+                {
+                    timeout: 3000,
+                    position: "top-right",
+                }
+            );
+        } else {
+            toast.info(
+                "No se encontraron resultados para los filtros aplicados.",
+                {
+                    timeout: 3000,
+                    position: "top-right",
+                }
+            );
+        }
     } else {
-        toast.info("No se encontraron resultados para los filtros aplicados.", {
+        toast.info("Nothing to filter", {
             timeout: 3000,
             position: "top-right",
         });
     }
 };
+
 export const clearFilters = async function () {
     this.filters.employee_id = "";
     this.filters.name = "";
@@ -210,11 +231,14 @@ export const clearFilters = async function () {
     this.filters.initialAccessDate = "";
     this.filters.finalAccessDate = "";
     this.filteredEmployees = [];
-
 };
 
 export const deleteEmployee = async function (id) {
     try {
+        toast.warning("Deleting...", {
+            timeout: 3000,
+            position: "top-right",
+        });
         const response = await axios_instance.post(`/delete-employee/${id}`);
         if (response.status === 200) {
             toast.success(response.data.message, {
@@ -229,6 +253,10 @@ export const deleteEmployee = async function (id) {
 };
 export const updateEmployee = async function () {
     try {
+        toast.info("Wait a moment, It may take a few seconds", {
+            timeout: 3000,
+            position: "top-right",
+        });
         const id = this.updateEmployeeForm.id;
         const data = {
             name: this.updateEmployeeForm.name,
@@ -253,6 +281,10 @@ export const updateEmployee = async function () {
 };
 export const uploadFile = async function (file) {
     try {
+        toast.info("Wait a moment, It may take a few seconds", {
+            timeout: 3000,
+            position: "top-right",
+        });
         const formData = new FormData();
         formData.append("file", file);
         const response = await axios_instance.post("/upload-file", formData, {
@@ -327,14 +359,27 @@ export const handleFile = async function (event) {
         event.target.value = "";
     }
 };
+export const previousPage = async function () {
+    this.currentPage--;
+};
+export const nextPage = async function () {
+    this.currentPage++;
+};
+export const updateObject = async function (employees) {
+    this.employees = employees;
+};
 export const simulateId = function (id) {
-    if (id && id.length > 15) {
+    if (id && id.length > 10) {
         window.open(`/simulate-room/${id}`, "_blank");
     }
 };
 
 export const exportHistory = async function (id) {
     try {
+        toast.info("Wait a moment, It may take a few seconds", {
+            timeout: 3000,
+            position: "top-right",
+        });
         const response = await axios_instance.post(
             "/export-data",
             { employee_id: id },
