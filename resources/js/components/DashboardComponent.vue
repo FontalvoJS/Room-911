@@ -337,6 +337,7 @@ export default {
             new DataTable("#employeesTable", {
                 responsive: true,
                 searching: false,
+                ordering:false
             });
         };
         load();
