@@ -115,7 +115,7 @@ export default {
                     this.errors = error.response.data.errors;
                 }
                 if (error.response.status === 403) {
-                    toast.error(error.response.data.message, {
+                    toast.error(error.response.data.error, {
                         timeout: 3000,
                         position: "top-right",
                     });
