@@ -36,7 +36,7 @@
                     Add admin
                 </button>
                 <button type="button" class="btn btn-primary" style="margin-left: 5px" title="Refresh table"
-                    @click="getEmployees(true)">
+                    @click="getEmployees(false, true)">
                     <i class="fas fa-sync"></i>
                 </button>
             </div>
@@ -297,7 +297,7 @@ export default {
                 name: "",
                 last_name: "",
             },
-            // filteredEmployees: [],
+            originalEmployeeList: [],
             pageLoaded: false,
         };
     },
@@ -341,7 +341,7 @@ export default {
         validateFormEmployee,
         setDataUpdate,
         uploadFile: useThrottle(uploadFile, 2000),
-        applyFilters: useThrottle(applyFilters, 2000),
+        applyFilters: applyFilters,
         clearFilters: useThrottle(clearFilters, 2000),
         handleFile,
         simulateId,

@@ -29,7 +29,7 @@
             <select
                 class="form-select"
                 v-model="filters.department"
-                @input="applyFilters"
+                @change="applyFilters"
             >
                 <option value="" selected>Select a department</option>
                 <option
