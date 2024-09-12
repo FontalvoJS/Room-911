@@ -140,8 +140,8 @@ export const applyFilters = function () {
         this.filters.department;
 
     if (isFiltering) {
-        // Aplica todos los filtros sobre `employees`
-        let filteredEmployees = this.employees.filter((employee) => {
+        // Usa `this.originalEmployeeList` para filtrar
+        let filteredEmployees = this.originalEmployeeList.filter((employee) => {
             // Filtro por ID de empleado (si está presente)
             if (searchObject.employee_id) {
                 if (
@@ -173,14 +173,14 @@ export const applyFilters = function () {
 
             // Filtro por departamento (si está presente)
             if (searchObject.department) {
-                const department = this.departments.find(
-                    (dep) => dep.id === searchObject.department
-                );
+                const department = Object.entries(Departments).find(
+                    (entry) => entry[1] == searchObject.department
+                )[0];
                 if (
                     department &&
                     !employee.department
                         .toLowerCase()
-                        .includes(department.name.toLowerCase())
+                        .includes(department.toLowerCase())
                 ) {
                     return false;
                 }
@@ -202,8 +202,12 @@ export const applyFilters = function () {
                 }
             );
         }
+    } else {
+        // Si no hay filtros, muestra la lista completa de empleados
+        this.employees = [...this.originalEmployeeList];
     }
 };
+
 
 export const clearFilters = async function () {
     toast.info("Clearing filters", {
@@ -217,7 +221,8 @@ export const clearFilters = async function () {
     this.filters.initialAccessDate = "";
     this.filters.finalAccessDate = "";
     this.filteredEmployees = [];
-    this.getEmployees();
+    this.employees = [...this.originalEmployeeList];
+
 };
 
 export const deleteEmployee = async function (id) {
@@ -305,7 +310,8 @@ export const getEmployees = async function (
         }
         const response = await axios_instance.get("/get-employees");
         if (response.status === 200) {
-            this.employees = response.data.employees;
+            this.originalEmployeeList = response.data.employees;
+            this.employees = [...this.originalEmployeeList];
 
             // Aplicar filtros si es necesario
             if (applyFilters) {
