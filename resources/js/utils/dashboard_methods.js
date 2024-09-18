@@ -51,6 +51,7 @@ export const submitFormToAddAdmin = async function () {
                 position: "top-right",
             });
             this.resetForm(true);
+            await this.getUsers();
         }
     } catch (error) {
         if (error.response && error.response.data.errors) {
@@ -208,7 +209,6 @@ export const applyFilters = function () {
     }
 };
 
-
 export const clearFilters = async function () {
     toast.info("Clearing filters", {
         timeout: 3000,
@@ -222,7 +222,6 @@ export const clearFilters = async function () {
     this.filters.finalAccessDate = "";
     this.filteredEmployees = [];
     this.employees = [...this.originalEmployeeList];
-
 };
 
 export const deleteEmployee = async function (id) {
@@ -422,5 +421,42 @@ export const exportHistory = async function (id) {
             timeout: 3000,
             position: "top-right",
         });
+    }
+};
+
+export const getUsers = async function () {
+    try {
+        const response = await axios_instance.get("/get-users");
+        if (response.status === 200) {
+            this.admins = response.data.users;
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+export const deleteUser = async function (id) {
+    try {
+        toast.warning("Deleting admin...", {
+            timeout: 3000,
+            position: "top-right",
+        });
+        const response = await axios_instance.post(`/delete-user/${id}`);
+        if (response.status === 200) {
+            toast.success(response.data.message, {
+                timeout: 3000,
+                position: "top-right",
+            });
+            await this.getUsers();
+        }
+    } catch (error) {
+        if (error.response && error.response.data.error) {
+            if (error.response.status === 400) {
+                toast.error(error.response.data.error, {
+                    timeout: 3000,
+                    position: "top-right",
+                });
+            }
+        }
     }
 };

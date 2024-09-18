@@ -1,10 +1,9 @@
 <template>
     <div>
-        <DashboardModals v-if="pageLoaded" :formAdmin="formAdmin" :formEmployee="formEmployee"
+        <DashboardModals v-if="pageLoaded" :formAdmin="formAdmin" :formEmployee="formEmployee" :deleteUser="deleteUser"
             :updateEmployeeForm="updateEmployeeForm" :departments="departments"
             :submitFormToAddAdmin="submitFormToAddAdmin" :submitFormToAddEmployee="submitFormToAddEmployee"
-            :updateEmployee="updateEmployee" :handleFile="handleFile" />
-        <!-- Main Container -->
+            :updateEmployee="updateEmployee" :handleFile="handleFile" :admins="admins" />
         <div class="container py-5 mt-4 custom_shadow">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="h3">Administrative Menu</h1>
@@ -92,7 +91,7 @@
                                 {{ employee.totalDenied || 0 }}</small>
                         </td>
                         <td>
-                            <span class="btn btn-light" title="Black color it means inactive">
+                            <span style="cursor:pointer" title="Black color it means inactive">
                                 {{ employee.has_access ? "🟠" : "⚫" }}
                             </span>
                         </td>
@@ -117,88 +116,6 @@
                         </td>
                     </tr>
                 </tbody>
-                <!-- <tbody v-else>
-                    <tr
-                        v-for="employee in filteredEmployees"
-                        :key="employee.id"
-                    >
-                        <td
-                            style="
-                                color: gray;
-                                font-size: 14px;
-                                font-family: 'Nunito';
-                            "
-                        >
-                            {{ employee.employee_id }}
-                        </td>
-                        <td @click="simulateId(employee.employee_id)">
-                            <i
-                                class="fa fa-eye"
-                                title="Simulate ID"
-                                :style="{
-                                    cursor: 'pointer',
-                                    color: employee.has_access
-                                        ? '#ff6723'
-                                        : 'initial',
-                                }"
-                            ></i>
-                        </td>
-                        <td>{{ employee.name }}</td>
-                        <td>{{ employee.last_name }}</td>
-                        <td>
-                            <div class="departments">
-                                {{ employee.department }}
-                            </div>
-                        </td>
-                        <td>
-                            <strong>{{ employee.totalAccess || 0 }}</strong>
-                        </td>
-                        <td>
-                            <small style="text-align: left !important">
-                                {{ employee.totalDenied || 0 }}</small
-                            >
-                        </td>
-                        <td>
-                            <span
-                                class="btn btn-light"
-                                title="Black color it means inactive"
-                            >
-                                {{ employee.has_access ? "🟠" : "⚫" }}
-                            </span>
-                        </td>
-                        <td>
-                            <button
-                                data-bs-toggle="modal"
-                                data-bs-target="#employeeEdit"
-                                title="Edit employee"
-                                @click="setDataUpdate(employee)"
-                                class="btn btn-sm btn-custom"
-                            >
-                                <i class="fa fa-edit"></i>
-                            </button>
-                        </td>
-                        <td class="action-buttons">
-                            <button
-                                title="Export history access to PDF"
-                                class="btn btn-sm btn-custom"
-                                @click="
-                                    this.exportHistory(employee.employee_id)
-                                "
-                            >
-                                <i class="fa fa-download"></i>
-                            </button>
-                        </td>
-                        <td>
-                            <button
-                                class="btn btn-sm btn-dar"
-                                title="Delete employee"
-                                @click="this.deleteEmployee(employee.id)"
-                            >
-                                <i class="fa fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody> -->
             </table>
             <div v-if="!pageLoaded" class="mt-4">
                 <!-- Spinner -->
@@ -208,7 +125,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Pagination Section -->
             <div class="pagination-section">
                 <div class="pagination-container">
                     <button @click="previousPage" :disabled="currentPage === 1" class="pagination-button">
@@ -249,19 +165,20 @@ import {
     previousPage,
     nextPage,
     updateObject,
+    getUsers,
+    deleteUser,
 } from "../utils/dashboard_methods.js"; // Asegúrate de que las rutas de importación sean correctas
 import FilterComponent from "../filter/FilterComponent.vue";
 
 export default {
     data() {
         return {
-            // vars
+            admins: [],
             currentTime: "",
             departments: [],
             employees: [],
-            currentPage: 1, // página actual
-            elementsPerPage: 10, // elementos por página
-            // Forms
+            currentPage: 1,
+            elementsPerPage: 10,
             formAdmin: {
                 name: "",
                 email: "",
@@ -287,7 +204,6 @@ export default {
                 has_access: false,
                 errors: {},
             },
-            // Filters
             filters: {
                 id: "",
                 employee_id: "",
@@ -307,8 +223,9 @@ export default {
             this.showTime();
         }, 1000);
         const load = async () => {
+            this.getEmployees();
             await this.getDepartments();
-            await this.getEmployees();
+            await this.getUsers();
             this.pageLoaded = true;
         };
         load();
@@ -334,8 +251,7 @@ export default {
         submitFormToAddAdmin: useThrottle(submitFormToAddAdmin, 2000),
         submitFormToAddEmployee: useThrottle(submitFormToAddEmployee, 2000),
         getDepartments,
-        // Aplica throttling a las funciones que dependen de clicks rápidos
-        getEmployees: useThrottle(getEmployees, 2000), // 2 segundos de delay entre ejecuciones
+        getEmployees: useThrottle(getEmployees, 2000),
         deleteEmployee: useThrottle(deleteEmployee, 2000),
         updateEmployee: useThrottle(updateEmployee, 2000),
         validateFormEmployee,
@@ -345,10 +261,12 @@ export default {
         clearFilters: useThrottle(clearFilters, 2000),
         handleFile,
         simulateId,
-        exportHistory: useThrottle(exportHistory, 2000), // También aquí
+        exportHistory: useThrottle(exportHistory, 2000),
         updateObject,
         previousPage,
         nextPage,
+        getUsers,
+        deleteUser,
     },
 };
 </script>

@@ -127,8 +127,9 @@
                                         imported immediately,
                                         please select the CSV with this format,
                                         we will create a unique access code
-                                        automatically<br/> <a class="text-decoration-none btn btn-outline-success" type="button"
-                                        href="/files/employees.csv" download="employees.csv">Download test file</a></label>
+                                        automatically<br /> <a class="text-decoration-none btn btn-outline-success"
+                                            type="button" href="/files/employees.csv" download="employees.csv">Download
+                                            test file</a></label>
                                     <table class="table table-bordered">
                                         <thead class="table-dark">
                                             <tr>
@@ -238,6 +239,31 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal for show admins and delete -->
+    <div class="modal fade" id="adminDelete" tabindex="-1" role="dialog" aria-labelledby="adminDelete"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="adminDelete">
+                        Delete an admin user
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group">
+                        <li class="list-group-item" v-for="admin in admins" :key="admin.id" style="cursor: pointer;">
+                            {{ admin.name }}
+                            <span class="float-end">
+                                <i class="fa fa-trash" @click="deleteUser(admin.id)"></i>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 <script>
 import {
@@ -248,6 +274,10 @@ import {
 export default {
     name: "DashboardModals",
     props: {
+        admins: {
+            type: Array,
+            required: true,
+        },
         formAdmin: {
             type: Object,
             required: true,
@@ -277,6 +307,10 @@ export default {
             required: true,
         },
         handleFile: {
+            type: Function,
+            required: true,
+        },
+        deleteUser: {
             type: Function,
             required: true,
         },
