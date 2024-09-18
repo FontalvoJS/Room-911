@@ -333,6 +333,10 @@ class AdminController extends Controller
     public function deleteUser($id)
     {
         try {
+            $isAllowed = Auth::user()->id == 1 && Auth::user()->name === "SuperAdmin";
+            if (!$isAllowed) {
+                return response()->json(['error' => 'You are not allowed to delete users'], Response::HTTP_FORBIDDEN);
+            }
             $user = User::find($id);
             if (!$user) {
                 return response()->json(['error' => 'Admin not found'], Response::HTTP_NOT_FOUND);
@@ -341,7 +345,6 @@ class AdminController extends Controller
             } else if ($user->id == 1 && $user->name === "SuperAdmin") {
                 return response()->json(['error' => 'You cannot delete the default admin'], Response::HTTP_BAD_REQUEST);
             }
-
             $user->delete();
             return response()->json(['message' => 'The next admin (' . $user->name . ') has been deleted successfully'], Response::HTTP_OK);
         } catch (\Exception $e) {

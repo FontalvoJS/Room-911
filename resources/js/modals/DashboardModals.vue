@@ -268,6 +268,7 @@
 <script>
 import {
     handleFile,
+    resetForm,
     submitFormToAddAdmin,
 } from "../utils/dashboard_methods.js";
 
@@ -311,6 +312,10 @@ export default {
             required: true,
         },
         deleteUser: {
+            type: Function,
+            required: true,
+        },
+        resetForm: {
             type: Function,
             required: true,
         },

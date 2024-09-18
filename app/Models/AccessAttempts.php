@@ -10,5 +10,5 @@ class AccessAttempts extends Model
     use HasFactory;
     protected $table = 'access_attempts';
     public $timestamps = false;
-    protected $fillable = ['attempted_at', 'employee_id', 'was_successful', 'ip'];
+    protected $fillable = ['attempted_at', 'employee_id', 'was_successful', 'ip', 'employee'];
 }

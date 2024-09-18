@@ -24,10 +24,11 @@ class Room911Controller extends Controller
             'employee_id' => 'required|string|min:10',
         ], $errorMessages);
         try {
-            $employee = Employees::select('has_access')->where('employee_id', $request->employee_id)->first();
+            $employee = Employees::select('has_access', 'id')->where('employee_id', $request->employee_id)->first();
             if ($employee) {
                 if ($employee->has_access == 1) {
                     AccessAttempts::create([
+                        'employee' => $employee->id,
                         'employee_id' => $request->employee_id,
                         'ip' => $request->ip(),
                         'was_successful' => 1,
@@ -36,6 +37,7 @@ class Room911Controller extends Controller
                     return response()->json(['message' => 'Access granted'], Response::HTTP_OK);
                 } else {
                     AccessAttempts::create([
+                        'employee' => $employee->id,
                         'employee_id' => $request->employee_id,
                         'ip' => $request->ip(),
                         'was_successful' => 0,
@@ -45,6 +47,7 @@ class Room911Controller extends Controller
                 }
             } else {
                 AccessAttempts::create([
+                    'employee' => null,
                     'employee_id' => $request->employee_id,
                     'ip' => $request->ip(),
                     'was_successful' => 0,
