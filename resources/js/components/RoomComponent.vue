@@ -38,8 +38,8 @@
     </div>
 </template>
 <script>
-import { useThrottle } from "../utils/useThrottle";
-import { submitForm } from "../utils/room_methods";
+import { useThrottle } from "../methods/useThrottle";
+import { submitForm } from "../methods/room_methods";
 export default {
     name: "RoomComponent",
     data() {

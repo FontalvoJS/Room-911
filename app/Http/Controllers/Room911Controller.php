@@ -47,7 +47,6 @@ class Room911Controller extends Controller
                 }
             } else {
                 AccessAttempts::create([
-                    'employee' => null,
                     'employee_id' => $request->employee_id,
                     'ip' => $request->ip(),
                     'was_successful' => 0,

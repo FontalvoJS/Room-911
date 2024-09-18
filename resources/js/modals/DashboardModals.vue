@@ -270,7 +270,7 @@ import {
     handleFile,
     resetForm,
     submitFormToAddAdmin,
-} from "../utils/dashboard_methods.js";
+} from "../methods/dashboard_methods.js";
 
 export default {
     name: "DashboardModals",

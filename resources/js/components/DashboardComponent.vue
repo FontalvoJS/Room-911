@@ -143,7 +143,7 @@
 
 <script>
 import "../../css/dashboard.css";
-import { useThrottle } from "../utils/useThrottle.js";
+import { useThrottle } from "../methods/useThrottle.js";
 import DashboardModals from "../modals/DashboardModals.vue";
 import {
     showTime,
@@ -169,7 +169,7 @@ import {
     getUsers,
     deleteUser,
     resetForm,
-} from "../utils/dashboard_methods.js"; // Asegúrate de que las rutas de importación sean correctas
+} from "../methods/dashboard_methods.js"; // Asegúrate de que las rutas de importación sean correctas
 import FilterComponent from "../filter/FilterComponent.vue";
 
 export default {

@@ -83,7 +83,7 @@
 </template>
 <script>
 import { useToast } from "vue-toastification";
-import axios_instance from "../utils/axios";
+import axios_instance from "../methods/axios";
 import "vue-toastification/dist/index.css";
 const toast = useToast();
 export default {
