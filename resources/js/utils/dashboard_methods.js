@@ -54,6 +54,7 @@ export const submitFormToAddAdmin = async function () {
             await this.getUsers();
         }
     } catch (error) {
+        console.log(error);
         if (error.response && error.response.data.errors) {
             this.formAdmin.errors = error.response.data.errors;
         } else {
@@ -451,7 +452,7 @@ export const deleteUser = async function (id) {
         }
     } catch (error) {
         if (error.response && error.response.data.error) {
-            if (error.response.status === 400) {
+            if (error.response.status >= 400) {
                 toast.error(error.response.data.error, {
                     timeout: 3000,
                     position: "top-right",

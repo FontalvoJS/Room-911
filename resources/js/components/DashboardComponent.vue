@@ -2,6 +2,7 @@
     <div>
         <DashboardModals v-if="pageLoaded" :formAdmin="formAdmin" :formEmployee="formEmployee" :deleteUser="deleteUser"
             :updateEmployeeForm="updateEmployeeForm" :departments="departments"
+            :resetForm="resetForm"
             :submitFormToAddAdmin="submitFormToAddAdmin" :submitFormToAddEmployee="submitFormToAddEmployee"
             :updateEmployee="updateEmployee" :handleFile="handleFile" :admins="admins" />
         <div class="container py-5 mt-4 custom_shadow">
@@ -167,6 +168,7 @@ import {
     updateObject,
     getUsers,
     deleteUser,
+    resetForm,
 } from "../utils/dashboard_methods.js"; // Asegúrate de que las rutas de importación sean correctas
 import FilterComponent from "../filter/FilterComponent.vue";
 
@@ -267,6 +269,7 @@ export default {
         nextPage,
         getUsers,
         deleteUser,
+        resetForm,
     },
 };
 </script>
