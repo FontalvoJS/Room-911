@@ -9,7 +9,7 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/css/dashboard.css',
                 'resources/js/app.js',
-                'resources/js/utils/dashboard_methods.js',
+                'resources/js/methods/dashboard_methods.js',
             ],
             refresh: true,
         }),

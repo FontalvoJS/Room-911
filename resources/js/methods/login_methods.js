@@ -1,7 +1,7 @@
 import { useToast } from "vue-toastification";
 import "vue-toastification/dist/index.css"; // Importar los estilos de Toastification
 const toast = useToast();
-import axios_instance from "../utils/axios";
+import axios_instance from "../methods/axios";
 export const validatePass = function (password) {
     if (password.length < 8) {
         toast.error("Password must be at least 8 characters", {

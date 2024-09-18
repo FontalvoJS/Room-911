@@ -81,8 +81,8 @@
 </template>
 
 <script>
-import { useThrottle } from "../utils/useThrottle";
-import {submitForm, validatePass} from "../utils/login_methods";
+import { useThrottle } from "../methods/useThrottle";
+import {submitForm, validatePass} from "../methods/login_methods";
 export default {
     data() {
         return {
