@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Ramsey\Uuid\Uuid;
 use App\Services\FileProcessorService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
 // use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 
@@ -278,6 +279,7 @@ class AdminController extends Controller
         }
     }
 
+
     public function getAccessHistory(Request $request)
     {
         $request->validate([
@@ -316,6 +318,32 @@ class AdminController extends Controller
             ]);
 
             return $pdf->download('access_history.pdf');
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    public function getUsers()
+    {
+        $users = User::select('id', 'name')->get();
+        return response()->json(['users' => $users], Response::HTTP_OK);
+    }
+
+    public function deleteUser($id)
+    {
+        try {
+            $user = User::find($id);
+            if (!$user) {
+                return response()->json(['error' => 'Admin not found'], Response::HTTP_NOT_FOUND);
+            } else if ($user->id == Auth::user()->id) {
+                return response()->json(['error' => 'You cannot delete yourself'], Response::HTTP_BAD_REQUEST);
+            } else if ($user->id == 1 && $user->name === "SuperAdmin") {
+                return response()->json(['error' => 'You cannot delete the default admin'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $user->delete();
+            return response()->json(['message' => 'The next admin (' . $user->name . ') has been deleted successfully'], Response::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
